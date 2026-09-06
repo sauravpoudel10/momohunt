@@ -49,12 +49,20 @@
   <div class="wrap">
     <a class="book__back" href="index.html"><span aria-hidden="true">&larr;</span> Back to the restaurant</a>
 
-    <p class="kicker kicker--pink">Reservations</p>
-    <h1 class="sechead__title">Book a table</h1>
-    <p class="lede">Pick a date and time and we'll confirm by phone. For same-day bookings or large groups, ring us on <a href="tel:+61296837306">(02) 9683 7306</a>.</p>
+    <p class="kicker kicker--pink" id="booking-kicker">Reservations</p>
+    <h1 class="sechead__title" id="booking-title">Book a table</h1>
+    <p class="lede" id="booking-lede">Pick a date and time and we'll confirm by phone. For same-day bookings or large groups, ring us on <a href="tel:+61296837306">(02) 9683 7306</a>.</p>
 
     <div class="book">
       <form class="form" id="booking-form" novalidate>
+        <div class="field">
+          <label for="bk-type">Booking type</label>
+          <select id="bk-type" name="bookingType" required>
+            <option value="Table">Table booking</option>
+            <option value="Function">Function or event</option>
+          </select>
+        </div>
+
         <div class="field">
           <label for="bk-name">Your name</label>
           <input type="text" id="bk-name" name="name" autocomplete="name" placeholder="Full name" required>
@@ -93,11 +101,50 @@
           <textarea id="bk-notes" name="notes" placeholder="Birthday, high chair, back courtyard, dietary needs…"></textarea>
         </div>
 
+        <section class="payment-proof" aria-labelledby="payment-title">
+          <div class="payment-proof__head">
+            <div>
+              <p class="kicker kicker--pink">Reservation deposit</p>
+              <h2 id="payment-title">Pay $20 upfront</h2>
+            </div>
+            <span class="payment-proof__amount">$20</span>
+          </div>
+
+          <p class="payment-proof__intro">Pay Chef Mira by PayID, then provide either your bank reference or a payment screenshot so we can confirm the booking.</p>
+
+          <div class="payid">
+            <span>
+              <small>PayID · Mobile number</small>
+              <strong id="payid-number">0493 674 190</strong>
+              <small>Chef Mira</small>
+            </span>
+            <button class="payid__copy" id="copy-payid" type="button">Copy PayID</button>
+          </div>
+
+          <div class="payment-proof__or" aria-hidden="true"><span>Provide one proof option</span></div>
+
+          <div class="field">
+            <label for="bk-payment-reference">Payment reference</label>
+            <input type="text" id="bk-payment-reference" name="paymentReference" maxlength="80" placeholder="Bank transaction or receipt reference">
+          </div>
+
+          <div class="field">
+            <label for="bk-payment-screenshot">Or payment screenshot</label>
+            <input class="field__file" type="file" id="bk-payment-screenshot" name="paymentScreenshot" accept="image/jpeg,image/png,image/webp" aria-describedby="payment-file-hint">
+            <span class="field__hint" id="payment-file-hint">JPG, PNG or WebP · maximum 8 MB. The image stays on your device until you share it.</span>
+          </div>
+
+          <div class="payment-preview" id="payment-preview" hidden>
+            <img id="payment-preview-image" src="" alt="Selected payment screenshot preview">
+            <span id="payment-preview-name"></span>
+            <button type="button" id="remove-payment-screenshot" aria-label="Remove selected payment screenshot">Remove</button>
+          </div>
+        </section>
+
         <p class="field__error" id="bk-error" hidden></p>
 
         <p class="book__note">
-          <strong>Parking:</strong> free in our McGill La lot during the day. After 6&nbsp;pm the lot is kept
-          for function bookings first, so please mention it here if you need a spot.
+          <strong>Parking:</strong> free anytime in our lot off McGill La, directly behind the restaurant.
         </p>
 
         <button class="btn btn--yellow btn--block" type="submit" id="bk-send">Send booking request</button>
@@ -112,6 +159,8 @@
       <div class="book__done" id="bk-done" hidden>
         <h3>Request sent 🎉</h3>
         <p id="bk-done-text">We'll confirm your table shortly. If WhatsApp didn't open, call us on (02) 9683 7306.</p>
+        <button class="btn btn--ink btn--block book__share-proof" type="button" id="bk-share-proof" hidden>Share payment screenshot</button>
+        <p class="field__hint" id="bk-proof-help" aria-live="polite"></p>
       </div>
     </div>
   </div>
@@ -144,6 +193,94 @@ const form   = document.getElementById("booking-form");
 const errEl  = document.getElementById("bk-error");
 const doneEl = document.getElementById("bk-done");
 const dateEl = document.getElementById("bk-date");
+const typeEl = document.getElementById("bk-type");
+const paymentReferenceEl = document.getElementById("bk-payment-reference");
+const paymentScreenshotEl = document.getElementById("bk-payment-screenshot");
+const paymentPreviewEl = document.getElementById("payment-preview");
+const paymentPreviewImage = document.getElementById("payment-preview-image");
+const paymentPreviewName = document.getElementById("payment-preview-name");
+const shareProofButton = document.getElementById("bk-share-proof");
+const proofHelpEl = document.getElementById("bk-proof-help");
+const PAYID = "0493674190";
+const MAX_SCREENSHOT_BYTES = 8 * 1024 * 1024;
+let paymentPreviewUrl = "";
+let pendingPaymentScreenshot = null;
+
+/* Function links use this same form with its purpose preselected. */
+const requestedType = new URLSearchParams(window.location.search).get("type");
+if (requestedType === "function") {
+  typeEl.value = "Function";
+  document.title = "Book a function | Momo's Hunt Granville";
+  document.getElementById("booking-kicker").textContent = "Functions & events";
+  document.getElementById("booking-title").textContent = "Book a function";
+  document.getElementById("booking-lede").innerHTML =
+    'Tell us your date, time and guest numbers and we\'ll confirm by phone. For urgent enquiries, ring us on <a href="tel:+61296837306">(02) 9683 7306</a>.';
+}
+
+document.getElementById("copy-payid").addEventListener("click", async (event) => {
+  try {
+    await navigator.clipboard.writeText(PAYID);
+    event.currentTarget.textContent = "Copied";
+  } catch (_) {
+    const range = document.createRange();
+    range.selectNodeContents(document.getElementById("payid-number"));
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+    event.currentTarget.textContent = "Selected — copy";
+  }
+  window.setTimeout(() => { event.currentTarget.textContent = "Copy PayID"; }, 2200);
+});
+
+function clearPaymentScreenshot() {
+  paymentScreenshotEl.value = "";
+  pendingPaymentScreenshot = null;
+  paymentPreviewEl.hidden = true;
+  paymentPreviewImage.src = "";
+  paymentPreviewName.textContent = "";
+  if (paymentPreviewUrl) URL.revokeObjectURL(paymentPreviewUrl);
+  paymentPreviewUrl = "";
+}
+
+paymentScreenshotEl.addEventListener("change", () => {
+  const file = paymentScreenshotEl.files[0];
+  if (!file) return clearPaymentScreenshot();
+  if (!file.type.startsWith("image/") || file.size > MAX_SCREENSHOT_BYTES) {
+    clearPaymentScreenshot();
+    return fail("Please choose a JPG, PNG or WebP payment screenshot under 8 MB.", paymentScreenshotEl);
+  }
+
+  if (paymentPreviewUrl) URL.revokeObjectURL(paymentPreviewUrl);
+  paymentPreviewUrl = URL.createObjectURL(file);
+  paymentPreviewImage.src = paymentPreviewUrl;
+  paymentPreviewName.textContent = file.name;
+  paymentPreviewEl.hidden = false;
+  errEl.hidden = true;
+});
+
+document.getElementById("remove-payment-screenshot").addEventListener("click", clearPaymentScreenshot);
+
+shareProofButton.addEventListener("click", async () => {
+  if (!pendingPaymentScreenshot) return;
+
+  const shareData = {
+    files: [pendingPaymentScreenshot],
+    title: "Momo's Hunt payment confirmation",
+    text: "My $20 reservation deposit payment screenshot for Momo's Hunt."
+  };
+
+  if (navigator.share && (!navigator.canShare || navigator.canShare(shareData))) {
+    try {
+      await navigator.share(shareData);
+      proofHelpEl.textContent = "Choose WhatsApp and send this image to the Momo's Hunt conversation you just opened.";
+      return;
+    } catch (error) {
+      if (error.name === "AbortError") return;
+    }
+  }
+
+  proofHelpEl.textContent = "File sharing is not available in this browser. In the opened WhatsApp chat, tap the paperclip or + button and attach your selected screenshot.";
+});
 
 /* Today in Sydney, as YYYY-MM-DD — bookings can't be in the past. */
 function sydneyToday() {
@@ -194,6 +331,9 @@ form.addEventListener("submit", (e) => {
   const phone = data.phone.trim();
   const email = data.email.trim();
   const guests = parseInt(data.guests, 10);
+  const bookingType = data.bookingType === "Function" ? "Function" : "Table";
+  const paymentReference = data.paymentReference.trim();
+  const paymentScreenshot = paymentScreenshotEl.files[0];
 
   if (!name) return fail("Please tell us your name.", nameEl);
   if (phone.replace(/\D/g, "").length < 8) return fail("Please enter a phone number we can reach you on.", phoneEl);
@@ -202,25 +342,38 @@ form.addEventListener("submit", (e) => {
   if (data.date < today) return fail("Please choose today or a later date.", dateEl);
   if (!data.time) return fail("Please choose a time.", timeEl);
   if (!guests || guests < 1) return fail("How many guests are coming?", guestsEl);
+  if (!paymentReference && !paymentScreenshot) {
+    return fail("Please enter your payment reference or select a payment screenshot.", paymentReferenceEl);
+  }
 
   const lines = [
-    "Table booking request — Momo's Hunt",
+    `${bookingType} booking request — Momo's Hunt`,
     "",
     `Name: ${name}`,
     `Phone: ${phone}`,
     `Email: ${email}`,
     `Date: ${prettyDate(data.date)}`,
     `Time: ${prettyTime(data.time)}`,
-    `Guests: ${guests}`
+    `Guests: ${guests}`,
+    "",
+    "Deposit paid: $20",
+    `PayID: ${PAYID}`
   ];
   if (data.notes.trim()) lines.push(`Notes: ${data.notes.trim()}`);
+  if (paymentReference) lines.push(`Payment reference: ${paymentReference}`);
+  if (paymentScreenshot) lines.push(`Payment screenshot selected: ${paymentScreenshot.name} — I will attach it in this chat.`);
 
   const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`;
   window.open(url, "_blank", "noopener");
 
   document.getElementById("bk-done-text").textContent =
-    `Thanks ${name} — we'll confirm ${guests} ${guests === 1 ? "guest" : "guests"} on ` +
+    `Thanks ${name} — we'll confirm your ${bookingType.toLowerCase()} booking for ${guests} ${guests === 1 ? "guest" : "guests"} on ` +
     `${prettyDate(data.date)} at ${prettyTime(data.time)}. If WhatsApp didn't open, call us on ${LANDLINE}.`;
+  pendingPaymentScreenshot = paymentScreenshot || null;
+  shareProofButton.hidden = !pendingPaymentScreenshot;
+  proofHelpEl.textContent = pendingPaymentScreenshot
+    ? "WhatsApp has opened with your booking details. Tap below to share the selected payment screenshot, or attach it manually in that chat."
+    : "Your payment reference is included in the WhatsApp confirmation message.";
   doneEl.hidden = false;
   doneEl.scrollIntoView({ behavior: "smooth", block: "center" });
 });
