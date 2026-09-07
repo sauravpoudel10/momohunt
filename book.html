@@ -54,6 +54,18 @@
     <p class="lede" id="booking-lede">Pick a date and time and we'll confirm by phone. For same-day bookings or large groups, ring us on <a href="tel:+61296837306">(02) 9683 7306</a>.</p>
 
     <div class="book">
+      <button class="menu-book-launch js-open-menu-book" type="button" aria-haspopup="dialog">
+        <span class="menu-book-launch__preview" aria-hidden="true">
+          <img src="assets/img/catering-menu/cover.jpeg" alt="" width="1447" height="2048">
+        </span>
+        <span class="menu-book-launch__copy">
+          <span class="kicker kicker--pink">Catering &amp; set menus</span>
+          <strong>Open our menu book</strong>
+          <span>Planning a function? Turn through all six full-quality pages, from the $22 simple menu to our $40 feast.</span>
+          <span class="menu-book-launch__action">Open the book <span aria-hidden="true">&rarr;</span></span>
+        </span>
+      </button>
+
       <form class="form" id="booking-form" novalidate>
         <div class="field">
           <label for="bk-type">Booking type</label>
@@ -110,7 +122,7 @@
             <span class="payment-proof__amount">$20</span>
           </div>
 
-          <p class="payment-proof__intro">Pay Chef Mira by PayID, then provide either your bank reference or a payment screenshot so we can confirm the booking.</p>
+          <p class="payment-proof__intro">Pay Chef Mira by PayID, then attach a screenshot of the payment so we can confirm the booking.</p>
 
           <div class="payid">
             <span>
@@ -121,17 +133,10 @@
             <button class="payid__copy" id="copy-payid" type="button">Copy PayID</button>
           </div>
 
-          <div class="payment-proof__or" aria-hidden="true"><span>Provide one proof option</span></div>
-
           <div class="field">
-            <label for="bk-payment-reference">Payment reference</label>
-            <input type="text" id="bk-payment-reference" name="paymentReference" maxlength="80" placeholder="Bank transaction or receipt reference">
-          </div>
-
-          <div class="field">
-            <label for="bk-payment-screenshot">Or payment screenshot</label>
-            <input class="field__file" type="file" id="bk-payment-screenshot" name="paymentScreenshot" accept="image/jpeg,image/png,image/webp" aria-describedby="payment-file-hint">
-            <span class="field__hint" id="payment-file-hint">JPG, PNG or WebP · maximum 8 MB. The image stays on your device until you share it.</span>
+            <label for="bk-payment-screenshot">Payment screenshot</label>
+            <input class="field__file" type="file" id="bk-payment-screenshot" name="paymentScreenshot" accept="image/jpeg,image/png,image/webp" aria-describedby="payment-file-hint" required>
+            <span class="field__hint" id="payment-file-hint">JPG, PNG or WebP · maximum 2 MB. The image stays on your device until you share it.</span>
           </div>
 
           <div class="payment-preview" id="payment-preview" hidden>
@@ -181,6 +186,46 @@
   <p class="footer__copy">© <span id="year">2026</span> Momo's Hunt Nepalese Restaurant · 111 Parramatta Rd, Granville NSW 2142</p>
 </footer>
 
+<!-- Full-quality catering menu presented as an interactive book -->
+<div class="menu-book-modal" id="menu-book-modal" role="dialog" aria-modal="true" aria-labelledby="menu-book-title" hidden>
+  <div class="menu-book-modal__panel">
+    <div class="menu-book-modal__header">
+      <div>
+        <p class="kicker kicker--yellow">Momo's Hunt catering</p>
+        <h2 id="menu-book-title">Menu book</h2>
+      </div>
+      <button class="menu-book-modal__close" id="menu-book-close" type="button" aria-label="Close menu book">&times;</button>
+    </div>
+
+    <div class="menu-book-stage">
+      <button class="menu-book-arrow menu-book-arrow--prev" id="menu-book-prev" type="button" aria-label="Previous menu page">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4l-8 8 8 8"/></svg>
+      </button>
+
+      <div class="menu-book" id="menu-book" data-mode="cover" aria-live="polite">
+        <figure class="menu-book__page menu-book__page--left" id="menu-book-left">
+          <img src="assets/img/catering-menu/cover.jpeg" alt="Momo's Hunt catering menu cover" width="1447" height="2048">
+        </figure>
+        <span class="menu-book__spine" aria-hidden="true"></span>
+        <figure class="menu-book__page menu-book__page--right" id="menu-book-right" hidden>
+          <img src="" alt="" width="1447" height="2048">
+        </figure>
+      </div>
+
+      <button class="menu-book-arrow menu-book-arrow--next" id="menu-book-next" type="button" aria-label="Open menu book">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4l8 8-8 8"/></svg>
+      </button>
+    </div>
+
+    <div class="menu-book-modal__footer">
+      <span id="menu-book-status">Cover</span>
+      <div class="menu-book-dots" id="menu-book-dots" aria-label="Menu pages"></div>
+      <a class="menu-book-full" id="menu-book-full" href="assets/img/catering-menu/cover.jpeg" target="_blank" rel="noopener">Open full-size page</a>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/menu-book.js"></script>
 <script>
 /* =========================================================
    Booking form — collects the details, then hands the
@@ -194,7 +239,6 @@ const errEl  = document.getElementById("bk-error");
 const doneEl = document.getElementById("bk-done");
 const dateEl = document.getElementById("bk-date");
 const typeEl = document.getElementById("bk-type");
-const paymentReferenceEl = document.getElementById("bk-payment-reference");
 const paymentScreenshotEl = document.getElementById("bk-payment-screenshot");
 const paymentPreviewEl = document.getElementById("payment-preview");
 const paymentPreviewImage = document.getElementById("payment-preview-image");
@@ -202,7 +246,7 @@ const paymentPreviewName = document.getElementById("payment-preview-name");
 const shareProofButton = document.getElementById("bk-share-proof");
 const proofHelpEl = document.getElementById("bk-proof-help");
 const PAYID = "0493674190";
-const MAX_SCREENSHOT_BYTES = 8 * 1024 * 1024;
+const MAX_SCREENSHOT_BYTES = 2 * 1024 * 1024;
 let paymentPreviewUrl = "";
 let pendingPaymentScreenshot = null;
 
@@ -247,7 +291,7 @@ paymentScreenshotEl.addEventListener("change", () => {
   if (!file) return clearPaymentScreenshot();
   if (!file.type.startsWith("image/") || file.size > MAX_SCREENSHOT_BYTES) {
     clearPaymentScreenshot();
-    return fail("Please choose a JPG, PNG or WebP payment screenshot under 8 MB.", paymentScreenshotEl);
+    return fail("Please choose a JPG, PNG or WebP payment screenshot under 2 MB.", paymentScreenshotEl);
   }
 
   if (paymentPreviewUrl) URL.revokeObjectURL(paymentPreviewUrl);
@@ -332,7 +376,6 @@ form.addEventListener("submit", (e) => {
   const email = data.email.trim();
   const guests = parseInt(data.guests, 10);
   const bookingType = data.bookingType === "Function" ? "Function" : "Table";
-  const paymentReference = data.paymentReference.trim();
   const paymentScreenshot = paymentScreenshotEl.files[0];
 
   if (!name) return fail("Please tell us your name.", nameEl);
@@ -342,8 +385,8 @@ form.addEventListener("submit", (e) => {
   if (data.date < today) return fail("Please choose today or a later date.", dateEl);
   if (!data.time) return fail("Please choose a time.", timeEl);
   if (!guests || guests < 1) return fail("How many guests are coming?", guestsEl);
-  if (!paymentReference && !paymentScreenshot) {
-    return fail("Please enter your payment reference or select a payment screenshot.", paymentReferenceEl);
+  if (!paymentScreenshot) {
+    return fail("Please attach a screenshot of your $20 PayID payment.", paymentScreenshotEl);
   }
 
   const lines = [
@@ -360,8 +403,7 @@ form.addEventListener("submit", (e) => {
     `PayID: ${PAYID}`
   ];
   if (data.notes.trim()) lines.push(`Notes: ${data.notes.trim()}`);
-  if (paymentReference) lines.push(`Payment reference: ${paymentReference}`);
-  if (paymentScreenshot) lines.push(`Payment screenshot selected: ${paymentScreenshot.name} — I will attach it in this chat.`);
+  lines.push(`Payment screenshot: ${paymentScreenshot.name} — I will attach it in this chat.`);
 
   const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`;
   window.open(url, "_blank", "noopener");
@@ -369,11 +411,10 @@ form.addEventListener("submit", (e) => {
   document.getElementById("bk-done-text").textContent =
     `Thanks ${name} — we'll confirm your ${bookingType.toLowerCase()} booking for ${guests} ${guests === 1 ? "guest" : "guests"} on ` +
     `${prettyDate(data.date)} at ${prettyTime(data.time)}. If WhatsApp didn't open, call us on ${LANDLINE}.`;
-  pendingPaymentScreenshot = paymentScreenshot || null;
-  shareProofButton.hidden = !pendingPaymentScreenshot;
-  proofHelpEl.textContent = pendingPaymentScreenshot
-    ? "WhatsApp has opened with your booking details. Tap below to share the selected payment screenshot, or attach it manually in that chat."
-    : "Your payment reference is included in the WhatsApp confirmation message.";
+  pendingPaymentScreenshot = paymentScreenshot;
+  shareProofButton.hidden = false;
+  proofHelpEl.textContent =
+    "WhatsApp has opened with your booking details. Tap below to share the payment screenshot, or attach it manually in that chat.";
   doneEl.hidden = false;
   doneEl.scrollIntoView({ behavior: "smooth", block: "center" });
 });
