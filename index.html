@@ -480,14 +480,57 @@
     <h2 class="sechead__title">Menu</h2>
     <p class="lede">Tap to build your order, send it to us on WhatsApp, ready in 20 minutes.</p>
 
-    <figure class="menu-poster">
-      <a href="assets/img/menu/entry-dish-poster.jpeg" target="_blank" rel="noopener">
-        <img src="assets/img/menu/entry-dish-poster.jpeg"
-             alt="Momo's Hunt entry dish menu: chicken sausage $8, veg sekuwa $10, aalu chop $7, samosa $8, chatpate $10, panipuri $10, peanuts sekeko $15, puri tarkari $15."
-             width="1024" height="1536" loading="lazy" decoding="async">
-      </a>
-      <figcaption>Tap the poster to open it full size.</figcaption>
-    </figure>
+    <div class="posters" id="menu-posters">
+      <button class="posters__nav posters__nav--prev" type="button" aria-label="Previous menu page">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4 7 12l8 8"/></svg>
+      </button>
+
+      <ul class="posters__track">
+      <li class="posters__slide">
+        <a class="posters__shot" href="assets/img/menu/entry-dish.jpeg" target="_blank" rel="noopener">
+          <img src="assets/img/menu/entry-dish.jpeg" alt="Entry dish menu: chicken sausage $8, veg sekuwa $10, aalu chop $7, samosa $8, chatpate $10, panipuri $10, peanuts sekeko $15, puri tarkari $15." width="1024" height="1536" loading="lazy" decoding="async">
+        </a>
+        <span class="posters__label">Entry dish</span>
+      </li>
+      <li class="posters__slide">
+        <a class="posters__shot" href="assets/img/menu/bara-momo.jpeg" target="_blank" rel="noopener">
+          <img src="assets/img/menu/bara-momo.jpeg" alt="Aalu kima chop $10, khuwa mo:mo $15, fokso fry $15, and the bara page: plain $10, kima $15 or $17, egg $13, mix $20." width="1086" height="1448" loading="lazy" decoding="async">
+        </a>
+        <span class="posters__label">Bara &amp; mo:mo</span>
+      </li>
+      <li class="posters__slide">
+        <a class="posters__shot" href="assets/img/menu/choila-kaja-chowmein.jpeg" target="_blank" rel="noopener">
+          <img src="assets/img/menu/choila-kaja-chowmein.jpeg" alt="Choila from $13, kaja sets from $23, and chowmein from $13." width="1086" height="1448" loading="lazy" decoding="async">
+        </a>
+        <span class="posters__label">Choila, kaja &amp; chowmein</span>
+      </li>
+      <li class="posters__slide">
+        <a class="posters__shot" href="assets/img/menu/khana-dessert-drinks.jpeg" target="_blank" rel="noopener">
+          <img src="assets/img/menu/khana-dessert-drinks.jpeg" alt="Dinner khana sets from $23, desserts from $6, drinks from $3, and kids fries $6 or chips and nuggets $10." width="1086" height="1448" loading="lazy" decoding="async">
+        </a>
+        <span class="posters__label">Khana set, dessert &amp; drinks</span>
+      </li>
+      <li class="posters__slide">
+        <a class="posters__shot" href="assets/img/menu/now-available.jpeg" target="_blank" rel="noopener">
+          <img src="assets/img/menu/now-available.jpeg" alt="Now available: laphing roll $10 or jhol $12, new chips lapping $15, chataamari from $15, fried rice from $14." width="1054" height="1492" loading="lazy" decoding="async">
+        </a>
+        <span class="posters__label">Now available</span>
+      </li>
+      <li class="posters__slide">
+        <a class="posters__shot" href="assets/img/menu/winter-thukpa.jpeg" target="_blank" rel="noopener">
+          <img src="assets/img/menu/winter-thukpa.jpeg" alt="Cold winter special thukpa: veg $15, chicken $17, buff $19, mix $22." width="1086" height="1448" loading="lazy" decoding="async">
+        </a>
+        <span class="posters__label">Winter special</span>
+      </li>
+      </ul>
+
+      <button class="posters__nav posters__nav--next" type="button" aria-label="Next menu page">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4l8 8-8 8"/></svg>
+      </button>
+
+      <div class="posters__dots" aria-label="Menu pages"></div>
+      <p class="posters__hint">Swipe through the printed menu · tap a page to open it full size</p>
+    </div>
 
     <div class="tabsbar">
       <div class="tabs" role="tablist" aria-label="Menu categories">

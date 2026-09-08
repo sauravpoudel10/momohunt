@@ -471,17 +471,64 @@ button{font:inherit;color:inherit}
 }
 .menu-book-launch__action{margin-top:12px;color:var(--pink);font-weight:700}
 
-/* Printed menu page, shown whole above the tappable list. */
-.menu-poster{margin:26px auto 0;max-width:560px;text-align:center}
-.menu-poster a{
+/* Printed menu pages, swiped through above the tappable list. */
+.posters{position:relative;max-width:560px;margin:26px auto 0}
+.posters__track{
+  display:flex;gap:14px;
+  margin:0;padding:0;
+  list-style:none;
+  overflow-x:auto;
+  scroll-snap-type:x mandatory;
+  scroll-behavior:smooth;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+.posters__track::-webkit-scrollbar{display:none}
+.posters__slide{flex:0 0 100%;scroll-snap-align:center}
+.posters__shot{
   display:block;overflow:hidden;
   border:1px solid var(--line);border-radius:var(--r-lg);
   background:var(--paper);box-shadow:var(--shadow-sm);
-  transition:transform .2s ease,box-shadow .2s ease;
 }
-.menu-poster a:hover{transform:translateY(-3px);box-shadow:var(--shadow-md)}
-.menu-poster img{display:block;width:100%;height:auto}
-.menu-poster figcaption{margin-top:10px;color:var(--muted);font-size:.82rem}
+.posters__shot img{display:block;width:100%;height:auto}
+.posters__label{
+  display:block;margin-top:10px;text-align:center;
+  font-family:var(--font-head);font-weight:700;font-size:.86rem;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
+}
+.posters__nav{
+  position:absolute;top:44%;z-index:4;
+  display:grid;place-items:center;
+  width:42px;height:42px;
+  transform:translateY(-50%);
+  border:0;border-radius:50%;
+  background:rgba(255,255,255,.94);color:var(--ink);
+  cursor:pointer;box-shadow:var(--shadow-md);
+  transition:transform .16s ease,background .16s ease,opacity .2s ease;
+}
+.posters__nav:hover{background:var(--yellow);transform:translateY(-50%) scale(1.08)}
+.posters__nav[disabled]{opacity:0;pointer-events:none}
+.posters__nav--prev{left:-14px}
+.posters__nav--next{right:-14px}
+.posters__nav svg{
+  width:20px;height:20px;
+  fill:none;stroke:currentColor;stroke-width:2.4;
+  stroke-linecap:round;stroke-linejoin:round;
+}
+.posters__dots{display:flex;justify-content:center;gap:8px;margin-top:14px}
+.posters__dot{
+  width:9px;height:9px;padding:0;
+  border:0;border-radius:50%;
+  background:rgba(23,18,16,.2);cursor:pointer;
+  transition:background .2s ease,transform .2s ease;
+}
+.posters__dot.is-active{background:var(--pink);transform:scale(1.25)}
+.posters__hint{margin:8px 0 0;text-align:center;font-size:.8rem;color:var(--muted)}
+
+@media (max-width:560px){
+  .posters__nav--prev{left:2px}
+  .posters__nav--next{right:2px}
+}
 
 /* The bar is what sticks; its cream backdrop hides items scrolling beneath. */
 .tabsbar{

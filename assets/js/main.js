@@ -400,6 +400,71 @@ function setupRail(rail) {
 $$(".rail").forEach(setupRail);
 
 /* =========================================================
+   Printed menu pages
+   A snapping strip of the real menu, one page at a time.
+   ========================================================= */
+function setupPosters(posters) {
+  const track = $(".posters__track", posters);
+  const slides = $$(".posters__slide", track);
+  const prev = $(".posters__nav--prev", posters);
+  const next = $(".posters__nav--next", posters);
+  const dotWrap = $(".posters__dots", posters);
+  if (!track || !slides.length) return;
+
+  const dots = slides.map((slide, index) => {
+    const dot = document.createElement("button");
+    dot.type = "button";
+    dot.className = "posters__dot";
+    dot.setAttribute("aria-label", `Show menu page ${index + 1} of ${slides.length}`);
+    dot.addEventListener("click", () => {
+      track.scrollTo({ left: slide.offsetLeft - track.offsetLeft, behavior: "smooth" });
+    });
+    dotWrap.append(dot);
+    return dot;
+  });
+
+  /* Whichever page sits closest to the middle of the strip. */
+  const current = () => {
+    const middle = track.scrollLeft + track.clientWidth / 2;
+    let index = 0;
+    let closest = Infinity;
+    slides.forEach((slide, i) => {
+      const centre = slide.offsetLeft - track.offsetLeft + slide.clientWidth / 2;
+      const distance = Math.abs(centre - middle);
+      if (distance < closest) {
+        closest = distance;
+        index = i;
+      }
+    });
+    return index;
+  };
+
+  const sync = () => {
+    const index = current();
+    dots.forEach((dot, i) => {
+      dot.classList.toggle("is-active", i === index);
+      dot.setAttribute("aria-current", i === index ? "true" : "false");
+    });
+    const max = track.scrollWidth - track.clientWidth - 2;
+    prev.disabled = track.scrollLeft <= 2;
+    next.disabled = track.scrollLeft >= max;
+  };
+
+  const step = (dir) => {
+    const gap = parseFloat(getComputedStyle(track).columnGap) || 0;
+    track.scrollBy({ left: dir * (slides[0].clientWidth + gap), behavior: "smooth" });
+  };
+
+  prev.addEventListener("click", () => step(-1));
+  next.addEventListener("click", () => step(1));
+  track.addEventListener("scroll", sync, { passive: true });
+  window.addEventListener("resize", sync);
+  sync();
+}
+
+$$(".posters").forEach(setupPosters);
+
+/* =========================================================
    Gallery lightbox
    ========================================================= */
 const lightbox = $("#lightbox");
