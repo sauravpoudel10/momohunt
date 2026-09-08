@@ -471,6 +471,18 @@ button{font:inherit;color:inherit}
 }
 .menu-book-launch__action{margin-top:12px;color:var(--pink);font-weight:700}
 
+/* Printed menu page, shown whole above the tappable list. */
+.menu-poster{margin:26px auto 0;max-width:560px;text-align:center}
+.menu-poster a{
+  display:block;overflow:hidden;
+  border:1px solid var(--line);border-radius:var(--r-lg);
+  background:var(--paper);box-shadow:var(--shadow-sm);
+  transition:transform .2s ease,box-shadow .2s ease;
+}
+.menu-poster a:hover{transform:translateY(-3px);box-shadow:var(--shadow-md)}
+.menu-poster img{display:block;width:100%;height:auto}
+.menu-poster figcaption{margin-top:10px;color:var(--muted);font-size:.82rem}
+
 /* The bar is what sticks; its cream backdrop hides items scrolling beneath. */
 .tabsbar{
   position:sticky;
@@ -836,7 +848,8 @@ button{font:inherit;color:inherit}
 .book .menu-book-launch{margin:0 0 24px}
 .form{display:grid;gap:16px}
 .field{display:grid;gap:6px}
-.field--row{grid-template-columns:1fr 1fr;gap:14px}
+.field--row{grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+.field--row > .field{align-content:start}
 .field label,.field legend{
   font-family:var(--font-head);
   font-weight:700;font-size:.8rem;
@@ -878,6 +891,11 @@ button{font:inherit;color:inherit}
   font-family:var(--font-head);font-weight:800;font-size:1.2rem;
 }
 .payment-proof__intro{margin:0;color:var(--muted);font-size:.92rem;line-height:1.45}
+.payment-proof__note{
+  margin:-8px 0 0;
+  font-family:var(--font-head);font-weight:700;font-size:.86rem;
+  color:var(--ink);
+}
 .payid{
   display:flex;align-items:center;justify-content:space-between;gap:14px;
   padding:15px 16px;border-radius:var(--r-sm);
@@ -1385,6 +1403,8 @@ button{font:inherit;color:inherit}
 }
 
 @media (max-width:699px){
+  .field--row{grid-template-columns:1fr;gap:16px}
+
   .menu-book-modal{padding:0}
   .menu-book-modal__panel{height:100svh;max-height:none;border:0;border-radius:0;padding:12px}
   .menu-book-stage{grid-template-columns:36px minmax(0,1fr) 36px;gap:5px;flex:1;overflow:hidden}

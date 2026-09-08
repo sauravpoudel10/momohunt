@@ -117,12 +117,13 @@
           <div class="payment-proof__head">
             <div>
               <p class="kicker kicker--pink">Reservation deposit</p>
-              <h2 id="payment-title">Pay $20 upfront</h2>
+              <h2 id="payment-title">Pay $10 upfront</h2>
             </div>
-            <span class="payment-proof__amount">$20</span>
+            <span class="payment-proof__amount" id="payment-amount">$10</span>
           </div>
 
           <p class="payment-proof__intro">Pay Chef Mira by PayID, then attach a screenshot of the payment so we can confirm the booking.</p>
+          <p class="payment-proof__note" id="payment-note">Function and event bookings are $10 per head.</p>
 
           <div class="payid">
             <span>
@@ -149,7 +150,7 @@
         <p class="field__error" id="bk-error" hidden></p>
 
         <p class="book__note">
-          <strong>Parking:</strong> free anytime in our lot off McGill La, directly behind the restaurant.
+          <strong>Parking:</strong> free anytime in McGill La street, right behind the restaurant.
         </p>
 
         <button class="btn btn--yellow btn--block" type="submit" id="bk-send">Send booking request</button>
@@ -247,6 +248,7 @@ const shareProofButton = document.getElementById("bk-share-proof");
 const proofHelpEl = document.getElementById("bk-proof-help");
 const PAYID = "0493674190";
 const MAX_SCREENSHOT_BYTES = 2 * 1024 * 1024;
+const DEPOSIT_PER_HEAD = 10;
 let paymentPreviewUrl = "";
 let pendingPaymentScreenshot = null;
 
@@ -260,6 +262,38 @@ if (requestedType === "function") {
   document.getElementById("booking-lede").innerHTML =
     'Tell us your date, time and guest numbers and we\'ll confirm by phone. For urgent enquiries, ring us on <a href="tel:+61296837306">(02) 9683 7306</a>.';
 }
+
+/* A table holds on a flat $10; a function is $10 for every head. */
+const guestsEl = document.getElementById("bk-guests");
+const paymentTitleEl = document.getElementById("payment-title");
+const paymentAmountEl = document.getElementById("payment-amount");
+const paymentNoteEl = document.getElementById("payment-note");
+
+function depositFor(type, guests) {
+  if (type !== "Function") return DEPOSIT_PER_HEAD;
+  const heads = Math.max(1, parseInt(guests, 10) || 1);
+  return DEPOSIT_PER_HEAD * heads;
+}
+
+function currentDeposit() {
+  return depositFor(typeEl.value, guestsEl.value);
+}
+
+function updateDeposit() {
+  const isFunction = typeEl.value === "Function";
+  const heads = Math.max(1, parseInt(guestsEl.value, 10) || 1);
+  const amount = currentDeposit();
+
+  paymentAmountEl.textContent = `$${amount}`;
+  paymentTitleEl.textContent = isFunction ? `Pay $${amount} upfront` : `Pay $${DEPOSIT_PER_HEAD} upfront`;
+  paymentNoteEl.textContent = isFunction
+    ? `$${DEPOSIT_PER_HEAD} per head · ${heads} ${heads === 1 ? "guest" : "guests"} = $${amount} deposit.`
+    : `Function and event bookings are $${DEPOSIT_PER_HEAD} per head.`;
+}
+
+typeEl.addEventListener("change", updateDeposit);
+guestsEl.addEventListener("input", updateDeposit);
+updateDeposit();
 
 document.getElementById("copy-payid").addEventListener("click", async (event) => {
   try {
@@ -310,7 +344,7 @@ shareProofButton.addEventListener("click", async () => {
   const shareData = {
     files: [pendingPaymentScreenshot],
     title: "Momo's Hunt payment confirmation",
-    text: "My $20 reservation deposit payment screenshot for Momo's Hunt."
+    text: `My $${currentDeposit()} reservation deposit payment screenshot for Momo's Hunt.`
   };
 
   if (navigator.share && (!navigator.canShare || navigator.canShare(shareData))) {
@@ -368,7 +402,6 @@ form.addEventListener("submit", (e) => {
   const phoneEl  = document.getElementById("bk-phone");
   const emailEl  = document.getElementById("bk-email");
   const timeEl   = document.getElementById("bk-time");
-  const guestsEl = document.getElementById("bk-guests");
 
   const data = Object.fromEntries(new FormData(form).entries());
   const name = data.name.trim();
@@ -377,6 +410,7 @@ form.addEventListener("submit", (e) => {
   const guests = parseInt(data.guests, 10);
   const bookingType = data.bookingType === "Function" ? "Function" : "Table";
   const paymentScreenshot = paymentScreenshotEl.files[0];
+  const deposit = depositFor(bookingType, guests);
 
   if (!name) return fail("Please tell us your name.", nameEl);
   if (phone.replace(/\D/g, "").length < 8) return fail("Please enter a phone number we can reach you on.", phoneEl);
@@ -386,7 +420,7 @@ form.addEventListener("submit", (e) => {
   if (!data.time) return fail("Please choose a time.", timeEl);
   if (!guests || guests < 1) return fail("How many guests are coming?", guestsEl);
   if (!paymentScreenshot) {
-    return fail("Please attach a screenshot of your $20 PayID payment.", paymentScreenshotEl);
+    return fail(`Please attach a screenshot of your $${deposit} PayID payment.`, paymentScreenshotEl);
   }
 
   const lines = [
@@ -399,7 +433,9 @@ form.addEventListener("submit", (e) => {
     `Time: ${prettyTime(data.time)}`,
     `Guests: ${guests}`,
     "",
-    "Deposit paid: $20",
+    bookingType === "Function"
+      ? `Deposit paid: $${deposit} ($${DEPOSIT_PER_HEAD} per head × ${guests})`
+      : `Deposit paid: $${deposit}`,
     `PayID: ${PAYID}`
   ];
   if (data.notes.trim()) lines.push(`Notes: ${data.notes.trim()}`);
