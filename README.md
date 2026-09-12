@@ -89,3 +89,16 @@ before a cross-fade and a slow push-in.
 It only plays while it is on screen, and stops when the tab is hidden. Under
 `prefers-reduced-motion` it stops advancing on its own — the arrows, bars and
 keys still work.
+
+## SEO
+
+- The live domain is hard-coded as `https://momoshunt.com` in the canonical,
+  Open Graph and JSON-LD tags of both pages, and in `robots.txt` /
+  `sitemap.xml`. If the domain ever changes, search-and-replace it in those
+  four places.
+- The `Restaurant` JSON-LD in `index.html` carries the whole menu
+  (`hasMenu`). When you add or re-price an item, regenerate that block or
+  edit the matching `MenuItem` so Google's menu data stays in step.
+- After each deploy, ping Google: Search Console → Sitemaps →
+  `https://momoshunt.com/sitemap.xml`.
+

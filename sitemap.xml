@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schema/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://momoshunt.com/</loc>
+    <lastmod>2026-09-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <image:image><image:loc>https://momoshunt.com/assets/img/og-cover.jpg</image:loc><image:title>Momo's Hunt Nepalese Restaurant, Granville</image:title></image:image>
+    <image:image><image:loc>https://momoshunt.com/assets/img/menu/momo.jpeg</image:loc><image:title>Momo's Hunt mo:mo menu</image:title></image:image>
+    <image:image><image:loc>https://momoshunt.com/assets/img/menu/entry-dish.jpeg</image:loc><image:title>Momo's Hunt entry dish menu</image:title></image:image>
+    <image:image><image:loc>https://momoshunt.com/assets/img/menu/khana-dessert-drinks.jpeg</image:loc><image:title>Momo's Hunt khana set, dessert and drinks menu</image:title></image:image>
+  </url>
+  <url>
+    <loc>https://momoshunt.com/book.html</loc>
+    <lastmod>2026-09-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+</urlset>

@@ -889,6 +889,31 @@ button{font:inherit;color:inherit}
 }
 .btn--ghost-ink:hover{--btn-bg:rgba(23,18,16,.08)}
 
+/* ---------- FAQ ---------- */
+
+.faq{display:grid;gap:10px;margin-top:22px;max-width:760px}
+.faq__item{
+  background:var(--paper);border-radius:var(--r-md);
+  box-shadow:var(--shadow-sm);overflow:hidden;
+}
+.faq__item summary{
+  list-style:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:16px 18px;
+  font-family:var(--font-head);font-weight:700;font-size:1rem;line-height:1.3;
+}
+.faq__item summary::-webkit-details-marker{display:none}
+.faq__item summary::after{
+  content:"+";flex:0 0 auto;
+  width:26px;height:26px;border-radius:50%;
+  display:grid;place-items:center;
+  background:var(--yellow);color:var(--ink);
+  font-weight:800;line-height:1;
+  transition:transform .2s ease;
+}
+.faq__item[open] summary::after{content:"3";}
+.faq__item p{margin:0;padding:0 18px 18px;color:var(--muted);line-height:1.55}
+
 /* ---------- Booking form ---------- */
 
 .book{max-width:560px;margin:26px auto 0}
