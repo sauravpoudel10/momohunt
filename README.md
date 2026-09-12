@@ -38,7 +38,8 @@ One edit covers every place the button appears.
 - **Hours** live in two places: the `HOURS` object in `assets/js/main.js`
   (drives the "Open now / Closed" badge) and the table in `index.html`.
 - **Phone numbers** come from your street sign: restaurant +61 405 140 747,
-  Chef Mira +61 493 674 190, bookings +61 449 573 676.
+  bookings +61 449 573 676. The booking deposit PayID (0493 674 190) lives in
+  `book.html` only.
 
 ## 3. How the ordering works
 
